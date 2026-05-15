@@ -32,6 +32,7 @@ import {
 	ZAiHandler,
 	FireworksHandler,
 	VercelAiGatewayHandler,
+	ZooGatewayHandler,
 	MiniMaxHandler,
 	BasetenHandler,
 } from "./providers"
@@ -173,6 +174,8 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 			return new FireworksHandler(options)
 		case "vercel-ai-gateway":
 			return new VercelAiGatewayHandler(options)
+		case "zoo-gateway":
+			return new ZooGatewayHandler(options)
 		case "minimax":
 			return new MiniMaxHandler(options)
 		case "baseten":

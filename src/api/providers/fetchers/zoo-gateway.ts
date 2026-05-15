@@ -1,0 +1,112 @@
+import axios from "axios"
+
+import type { ModelInfo } from "@roo-code/types"
+import { VERCEL_AI_GATEWAY_VISION_ONLY_MODELS, VERCEL_AI_GATEWAY_VISION_AND_TOOLS_MODELS } from "@roo-code/types"
+
+import type { ApiHandlerOptions } from "../../../shared/api"
+import { parseApiPrice } from "../../../shared/cost"
+
+// Reuse the same schemas and parsing logic from vercel-ai-gateway since the API format is identical
+import { type VercelAiGatewayModel, parseVercelAiGatewayModel } from "./vercel-ai-gateway"
+
+import { z } from "zod"
+
+/**
+ * ZooGatewayPricing (same format as Vercel AI Gateway)
+ */
+
+const zooGatewayPricingSchema = z.object({
+	input: z.string().optional(),
+	output: z.string().optional(),
+	input_cache_write: z.string().optional(),
+	input_cache_read: z.string().optional(),
+	image: z.string().optional(),
+})
+
+/**
+ * ZooGatewayModel (same format as Vercel AI Gateway)
+ */
+
+const zooGatewayModelSchema = z.object({
+	id: z.string(),
+	object: z.string(),
+	created: z.number(),
+	owned_by: z.string(),
+	name: z.string(),
+	description: z.string(),
+	context_window: z.number(),
+	max_tokens: z.number(),
+	type: z.string(),
+	pricing: zooGatewayPricingSchema,
+})
+
+/**
+ * ZooGatewayModelsResponse
+ */
+
+const zooGatewayModelsResponseSchema = z.object({
+	object: z.string(),
+	data: z.array(zooGatewayModelSchema),
+})
+
+type ZooGatewayModelsResponse = z.infer<typeof zooGatewayModelsResponseSchema>
+
+/**
+ * getZooGatewayModels
+ *
+ * Fetches models from the Zoo Gateway API. Requires authentication via the zoo_ext_ token.
+ */
+
+export async function getZooGatewayModels(options?: ApiHandlerOptions): Promise<Record<string, ModelInfo>> {
+	const models: Record<string, ModelInfo> = {}
+	const baseURL = options?.zooGatewayBaseUrl ?? "https://zoocode.dev/api/gateway/v1"
+
+	// Build headers - Zoo Gateway requires authentication
+	const headers: Record<string, string> = {}
+	if (options?.zooGatewayApiKey) {
+		headers["Authorization"] = `Bearer ${options.zooGatewayApiKey}`
+	}
+
+	try {
+		const response = await axios.get<ZooGatewayModelsResponse>(`${baseURL}/models`, {
+			headers,
+		})
+		const result = zooGatewayModelsResponseSchema.safeParse(response.data)
+		const data = result.success ? result.data.data : response.data.data
+
+		if (!result.success) {
+			console.error(`Zoo Gateway models response is invalid ${JSON.stringify(result.error.format())}`)
+		}
+
+		for (const model of data) {
+			const { id } = model
+
+			// Only include language models for chat inference.
+			// Embedding models are statically defined in embeddingModels.ts.
+			if (model.type !== "language") {
+				continue
+			}
+
+			// Parse model using the same logic as Vercel AI Gateway since formats are identical
+			models[id] = parseZooGatewayModel({ id, model: model as VercelAiGatewayModel })
+		}
+	} catch (error) {
+		console.error(
+			`Error fetching Zoo Gateway models: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
+		)
+	}
+
+	return models
+}
+
+/**
+ * parseZooGatewayModel
+ *
+ * Parses a Zoo Gateway model into ModelInfo format.
+ * Zoo Gateway returns the same format as Vercel AI Gateway, so we can reuse the parsing logic.
+ */
+
+export const parseZooGatewayModel = ({ id, model }: { id: string; model: VercelAiGatewayModel }): ModelInfo => {
+	// Reuse the parsing logic from vercel-ai-gateway
+	return parseVercelAiGatewayModel({ id, model })
+}

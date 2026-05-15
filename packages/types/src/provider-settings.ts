@@ -37,6 +37,7 @@ export const DEFAULT_CONSECUTIVE_MISTAKE_LIMIT = 3
 export const dynamicProviders = [
 	"openrouter",
 	"vercel-ai-gateway",
+	"zoo-gateway",
 	"litellm",
 	"requesty",
 	"roo",
@@ -391,6 +392,12 @@ const vercelAiGatewaySchema = baseProviderSettingsSchema.extend({
 	vercelAiGatewayModelId: z.string().optional(),
 })
 
+const zooGatewaySchema = baseProviderSettingsSchema.extend({
+	zooGatewayApiKey: z.string().optional(),
+	zooGatewayModelId: z.string().optional(),
+	zooGatewayBaseUrl: z.string().optional(),
+})
+
 const basetenSchema = apiModelIdProviderModelSchema.extend({
 	basetenApiKey: z.string().optional(),
 })
@@ -429,6 +436,7 @@ export const providerSettingsSchemaDiscriminated = z.discriminatedUnion("apiProv
 	qwenCodeSchema.merge(z.object({ apiProvider: z.literal("qwen-code") })),
 	rooSchema.merge(z.object({ apiProvider: z.literal("roo") })),
 	vercelAiGatewaySchema.merge(z.object({ apiProvider: z.literal("vercel-ai-gateway") })),
+	zooGatewaySchema.merge(z.object({ apiProvider: z.literal("zoo-gateway") })),
 	defaultSchema,
 ])
 
@@ -463,6 +471,7 @@ export const providerSettingsSchema = z.object({
 	...qwenCodeSchema.shape,
 	...rooSchema.shape,
 	...vercelAiGatewaySchema.shape,
+	...zooGatewaySchema.shape,
 	...codebaseIndexProviderSchema.shape,
 })
 
@@ -493,6 +502,7 @@ export const modelIdKeys = [
 	"unboundModelId",
 	"litellmModelId",
 	"vercelAiGatewayModelId",
+	"zooGatewayModelId",
 ] as const satisfies readonly (keyof ProviderSettings)[]
 
 export type ModelIdKey = (typeof modelIdKeys)[number]
@@ -538,6 +548,7 @@ export const modelIdKeysByProvider: Record<TypicalProvider, ModelIdKey> = {
 	fireworks: "apiModelId",
 	roo: "apiModelId",
 	"vercel-ai-gateway": "vercelAiGatewayModelId",
+	"zoo-gateway": "zooGatewayModelId",
 }
 
 /**
@@ -556,10 +567,10 @@ export const getApiProtocol = (provider: ProviderName | undefined, modelId?: str
 		return "anthropic"
 	}
 
-	// Vercel AI Gateway uses anthropic protocol for anthropic models.
+	// Vercel AI Gateway, Zoo Gateway, and Roo use anthropic protocol for anthropic models.
 	if (
 		provider &&
-		["vercel-ai-gateway", "roo"].includes(provider) &&
+		["vercel-ai-gateway", "zoo-gateway", "roo"].includes(provider) &&
 		modelId &&
 		modelId.toLowerCase().startsWith("anthropic/")
 	) {
@@ -655,6 +666,7 @@ export const MODELS_BY_PROVIDER: Record<
 	requesty: { id: "requesty", label: "Requesty", models: [] },
 	unbound: { id: "unbound", label: "Unbound", models: [] },
 	"vercel-ai-gateway": { id: "vercel-ai-gateway", label: "Vercel AI Gateway", models: [] },
+	"zoo-gateway": { id: "zoo-gateway", label: "Zoo Gateway", models: [] },
 
 	// Local providers; models discovered from localhost endpoints.
 	lmstudio: { id: "lmstudio", label: "LM Studio", models: [] },
