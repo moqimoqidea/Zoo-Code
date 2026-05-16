@@ -29,6 +29,13 @@ export class ZooGatewayHandler extends RouterProvider implements SingleCompletio
 	constructor(options: ApiHandlerOptions) {
 		const baseURL = options.zooGatewayBaseUrl ?? "https://www.zoocode.dev/api/gateway/v1"
 
+		// Fail fast with a clear message instead of waiting for a 401.
+		// The token is set automatically by handleZooCodeCallback() after the user
+		// authenticates via the "Sign in with Zoo Code" flow in the extension.
+		if (!options.zooSessionToken) {
+			throw new Error("Zoo Gateway requires authentication. Please sign in to Zoo Code first.")
+		}
+
 		super({
 			options,
 			name: "zoo-gateway",
@@ -53,7 +60,7 @@ export class ZooGatewayHandler extends RouterProvider implements SingleCompletio
 		// Recreate client with enrichment headers
 		;(this as any).client = new OpenAI({
 			baseURL,
-			apiKey: options.zooSessionToken ?? "not-provided",
+			apiKey: options.zooSessionToken,
 			defaultHeaders: {
 				...DEFAULT_HEADERS,
 				...enrichmentHeaders,
