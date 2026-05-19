@@ -907,7 +907,8 @@ export class ClineProvider
 
 	/**
 	 * Seeds the zoo-gateway provider profile for users who have a cached auth token
-	 * but no profile (e.g., users who signed in before Zoo Gateway was added).
+	 * but no profile (e.g., users who signed in before Zoo Gateway was added), or
+	 * who have an empty/imported profile without a token.
 	 * Called once per webview init; handleZooCodeCallback is idempotent so repeated calls are safe.
 	 */
 	private async ensureZooGatewayProfileSeeded(): Promise<void> {
@@ -915,13 +916,32 @@ export class ClineProvider
 		const token = getCachedZooCodeToken()
 		if (!token) return
 
-		// Check if any zoo-gateway profile already exists
+		// Check if a zoo-gateway profile exists AND has a token. A profile may exist but be
+		// empty (e.g., imported settings without credentials, or auth completed while no
+		// provider instance was open). In that case, we still need to write the token.
 		const allProfiles = await this.providerSettingsManager.listConfig()
-		const hasZooGatewayProfile = allProfiles.some((p) => p.apiProvider === "zoo-gateway")
-		if (hasZooGatewayProfile) return
+		const zooGatewayProfile = allProfiles.find((p) => p.apiProvider === "zoo-gateway")
 
-		// User has token but no profile — seed it via the same path as fresh auth
-		this.log("[ensureZooGatewayProfileSeeded] Seeding zoo-gateway profile for existing auth token")
+		if (zooGatewayProfile) {
+			// Profile exists — check if it has a token
+			try {
+				const fullProfile = await this.providerSettingsManager.getProfile({ name: zooGatewayProfile.name })
+				if (fullProfile.zooSessionToken) {
+					// Profile exists and has a token — nothing to do
+					return
+				}
+				this.log(
+					"[ensureZooGatewayProfileSeeded] Existing zoo-gateway profile has no token, updating with cached token",
+				)
+			} catch {
+				// Profile lookup failed — proceed to seed
+				this.log("[ensureZooGatewayProfileSeeded] Failed to read existing profile, will re-seed")
+			}
+		} else {
+			this.log("[ensureZooGatewayProfileSeeded] No zoo-gateway profile found, creating one")
+		}
+
+		// User has token but either no profile or profile without token — seed it
 		await this.handleZooCodeCallback(token)
 	}
 
