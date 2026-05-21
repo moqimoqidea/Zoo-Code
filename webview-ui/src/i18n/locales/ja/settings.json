@@ -557,6 +557,13 @@
 			"placeholder": "デフォルト：claude",
 			"maxTokensLabel": "最大出力トークン",
 			"maxTokensDescription": "Claude Codeレスポンスの最大出力トークン数。デフォルトは8000です。"
+		},
+		"zooGateway": {
+			"account": "Zoo Code アカウント",
+			"signInButton": "Zoo Code にサインイン",
+			"signInDescription": "Zoo Gateway をアカウントで使用するにはサインインしてください",
+			"authenticated": "認証済み",
+			"authenticatedAs": "{{name}} として認証済み"
 		}
 	},
 	"checkpoints": {

@@ -557,6 +557,13 @@
 			"placeholder": "Por defecto: claude",
 			"maxTokensLabel": "Tokens máximos de salida",
 			"maxTokensDescription": "Número máximo de tokens de salida para las respuestas de Claude Code. El valor predeterminado es 8000."
+		},
+		"zooGateway": {
+			"account": "Cuenta de Zoo Code",
+			"signInButton": "Iniciar sesión en Zoo Code",
+			"signInDescription": "Inicia sesión para usar Zoo Gateway con tu cuenta",
+			"authenticated": "Autenticado",
+			"authenticatedAs": "Autenticado como {{name}}"
 		}
 	},
 	"checkpoints": {

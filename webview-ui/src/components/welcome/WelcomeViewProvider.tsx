@@ -16,7 +16,8 @@ import { Trans } from "react-i18next"
 import { ArrowLeft, Brain } from "lucide-react"
 
 const WelcomeViewProvider = () => {
-	const { apiConfiguration, currentApiConfigName, setApiConfiguration, uriScheme } = useExtensionState()
+	const { apiConfiguration, currentApiConfigName, setApiConfiguration, uriScheme, zooCodeIsAuthenticated } =
+		useExtensionState()
 	const { t } = useAppTranslation()
 	const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
 	const [showProviderSetup, setShowProviderSetup] = useState(false)
@@ -36,7 +37,9 @@ const WelcomeViewProvider = () => {
 			return
 		}
 
-		const error = apiConfiguration ? validateApiConfiguration(apiConfiguration) : undefined
+		const error = apiConfiguration
+			? validateApiConfiguration(apiConfiguration, undefined, undefined, zooCodeIsAuthenticated)
+			: undefined
 
 		if (error) {
 			setErrorMessage(error)
@@ -45,7 +48,7 @@ const WelcomeViewProvider = () => {
 
 		setErrorMessage(undefined)
 		vscode.postMessage({ type: "upsertApiConfiguration", text: currentApiConfigName, apiConfiguration })
-	}, [showProviderSetup, apiConfiguration, currentApiConfigName])
+	}, [showProviderSetup, apiConfiguration, currentApiConfigName, zooCodeIsAuthenticated])
 
 	const handleBackToLanding = useCallback(() => {
 		setShowProviderSetup(false)

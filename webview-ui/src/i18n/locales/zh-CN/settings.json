@@ -557,6 +557,13 @@
 			"placeholder": "默认：claude",
 			"maxTokensLabel": "最大输出 Token",
 			"maxTokensDescription": "Claude Code 响应的最大输出 Token 数量。默认为 8000。"
+		},
+		"zooGateway": {
+			"account": "Zoo Code 账户",
+			"signInButton": "登录 Zoo Code",
+			"signInDescription": "登录以使用您的账户访问 Zoo Gateway",
+			"authenticated": "已认证",
+			"authenticatedAs": "已认证为 {{name}}"
 		}
 	},
 	"checkpoints": {

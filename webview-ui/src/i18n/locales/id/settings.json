@@ -557,6 +557,13 @@
 			"placeholder": "Default: claude",
 			"maxTokensLabel": "Token Output Maks",
 			"maxTokensDescription": "Jumlah maksimum token output untuk respons Claude Code. Default adalah 8000."
+		},
+		"zooGateway": {
+			"account": "Akun Zoo Code",
+			"signInButton": "Masuk ke Zoo Code",
+			"signInDescription": "Masuk untuk menggunakan Zoo Gateway dengan akun Anda",
+			"authenticated": "Terautentikasi",
+			"authenticatedAs": "Terautentikasi sebagai {{name}}"
 		}
 	},
 	"checkpoints": {

@@ -1,5 +1,3 @@
-import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
-
 import {
 	type ProviderSettings,
 	type OrganizationAllowList,
@@ -7,6 +5,8 @@ import {
 	zooGatewayDefaultModelId,
 } from "@roo-code/types"
 
+import { useExtensionState } from "@src/context/ExtensionStateContext"
+import { getZooCodeAuthUrl } from "@src/oauth/urls"
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 
 import { ModelPicker } from "../ModelPicker"
@@ -29,24 +29,42 @@ export const ZooGateway = ({
 	simplifySettings,
 }: ZooGatewayProps) => {
 	const { t } = useAppTranslation()
+	const { zooCodeIsAuthenticated, zooCodeUserEmail, zooCodeUserName, zooCodeBaseUrl, uriScheme, deviceName } =
+		useExtensionState()
+
+	const authUrl = getZooCodeAuthUrl(uriScheme, zooCodeBaseUrl, deviceName)
 
 	return (
 		<>
-			{/* Zoo Gateway auth is managed exclusively through the "Sign in with Zoo Code"
-			    OAuth flow — the token is set automatically and must not be editable by users.
-			    Showing the field as read-only lets users confirm they are signed in. */}
-			<VSCodeTextField
-				value={apiConfiguration?.zooSessionToken ? "••••••••••••••••" : ""}
-				type="text"
-				readOnly
-				placeholder={t("settings:placeholders.sessionToken")}
-				className="w-full">
-				<label className="block font-medium mb-1">Zoo Session Token</label>
-			</VSCodeTextField>
-			<div className="text-sm text-vscode-descriptionForeground -mt-2">
-				{apiConfiguration?.zooSessionToken
-					? "Signed in via Zoo Code"
-					: "Sign in via the Zoo Code button to authenticate"}
+			{/* Zoo Code Authentication Section */}
+			<div className="flex flex-col gap-1 rounded-md border border-vscode-panel-border p-2">
+				<div className="flex items-center justify-between">
+					<label className="block text-sm font-medium">{t("settings:providers.zooGateway.account")}</label>
+					{zooCodeIsAuthenticated && zooCodeUserEmail && (
+						<span className="text-xs text-vscode-descriptionForeground">{zooCodeUserEmail}</span>
+					)}
+				</div>
+				{!zooCodeIsAuthenticated ? (
+					<div className="flex flex-col gap-1">
+						<p className="text-xs text-vscode-descriptionForeground">
+							{t("settings:providers.zooGateway.signInDescription")}
+						</p>
+						<a
+							href={authUrl}
+							className="inline-flex w-fit items-center rounded-sm bg-vscode-button-background px-3 py-1 text-xs text-vscode-button-foreground no-underline hover:bg-vscode-button-hoverBackground">
+							{t("settings:providers.zooGateway.signInButton")}
+						</a>
+					</div>
+				) : (
+					<div className="flex items-center gap-1">
+						<span className="codicon codicon-check text-vscode-charts-green" />
+						<span className="text-xs text-vscode-descriptionForeground">
+							{zooCodeUserName
+								? t("settings:providers.zooGateway.authenticatedAs", { name: zooCodeUserName })
+								: t("settings:providers.zooGateway.authenticated")}
+						</span>
+					</div>
+				)}
 			</div>
 			<ModelPicker
 				apiConfiguration={apiConfiguration}

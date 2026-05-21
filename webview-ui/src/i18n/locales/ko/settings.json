@@ -557,6 +557,13 @@
 			"placeholder": "기본값: claude",
 			"maxTokensLabel": "최대 출력 토큰",
 			"maxTokensDescription": "Claude Code 응답의 최대 출력 토큰 수. 기본값은 8000입니다."
+		},
+		"zooGateway": {
+			"account": "Zoo Code 계정",
+			"signInButton": "Zoo Code에 로그인",
+			"signInDescription": "계정으로 Zoo Gateway를 사용하려면 로그인하세요",
+			"authenticated": "인증됨",
+			"authenticatedAs": "{{name}}(으)로 인증됨"
 		}
 	},
 	"checkpoints": {

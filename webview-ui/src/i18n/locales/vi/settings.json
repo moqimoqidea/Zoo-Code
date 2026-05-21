@@ -557,6 +557,13 @@
 			"placeholder": "Mặc định: claude",
 			"maxTokensLabel": "Số token đầu ra tối đa",
 			"maxTokensDescription": "Số lượng token đầu ra tối đa cho các phản hồi của Claude Code. Mặc định là 8000."
+		},
+		"zooGateway": {
+			"account": "Tài khoản Zoo Code",
+			"signInButton": "Đăng nhập vào Zoo Code",
+			"signInDescription": "Đăng nhập để sử dụng Zoo Gateway với tài khoản của bạn",
+			"authenticated": "Đã xác thực",
+			"authenticatedAs": "Đã xác thực với tên {{name}}"
 		}
 	},
 	"checkpoints": {

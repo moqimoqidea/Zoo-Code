@@ -557,6 +557,13 @@
 			"placeholder": "Standaard: claude",
 			"maxTokensLabel": "Max Output Tokens",
 			"maxTokensDescription": "Maximaal aantal output-tokens voor Claude Code-reacties. Standaard is 8000."
+		},
+		"zooGateway": {
+			"account": "Zoo Code Account",
+			"signInButton": "Inloggen bij Zoo Code",
+			"signInDescription": "Log in om Zoo Gateway met je account te gebruiken",
+			"authenticated": "Geauthenticeerd",
+			"authenticatedAs": "Geauthenticeerd als {{name}}"
 		}
 	},
 	"checkpoints": {

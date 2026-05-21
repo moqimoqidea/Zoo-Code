@@ -134,7 +134,7 @@ const ApiOptions = ({
 	setErrorMessage,
 }: ApiOptionsProps) => {
 	const { t } = useAppTranslation()
-	const { organizationAllowList, openAiCodexIsAuthenticated } = useExtensionState()
+	const { organizationAllowList, openAiCodexIsAuthenticated, zooCodeIsAuthenticated } = useExtensionState()
 
 	const [customHeaders, setCustomHeaders] = useState<[string, string][]>(() => {
 		const headers = apiConfiguration?.openAiHeaders || {}
@@ -273,9 +273,17 @@ const ApiOptions = ({
 			apiConfiguration,
 			routerModels,
 			organizationAllowList,
+			zooCodeIsAuthenticated,
 		)
 		setErrorMessage(apiValidationResult)
-	}, [apiConfiguration, routerModels, organizationAllowList, setErrorMessage, isRetiredSelectedProvider])
+	}, [
+		apiConfiguration,
+		routerModels,
+		organizationAllowList,
+		setErrorMessage,
+		isRetiredSelectedProvider,
+		zooCodeIsAuthenticated,
+	])
 
 	const onProviderChange = useCallback(
 		(value: ProviderName) => {

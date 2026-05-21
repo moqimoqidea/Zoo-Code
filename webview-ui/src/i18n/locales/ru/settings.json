@@ -557,6 +557,13 @@
 			"placeholder": "По умолчанию: claude",
 			"maxTokensLabel": "Макс. выходных токенов",
 			"maxTokensDescription": "Максимальное количество выходных токенов для ответов Claude Code. По умолчанию 8000."
+		},
+		"zooGateway": {
+			"account": "Учетная запись Zoo Code",
+			"signInButton": "Войти в Zoo Code",
+			"signInDescription": "Войдите, чтобы использовать Zoo Gateway с вашей учетной записью",
+			"authenticated": "Аутентифицирован",
+			"authenticatedAs": "Аутентифицирован как {{name}}"
 		}
 	},
 	"checkpoints": {
