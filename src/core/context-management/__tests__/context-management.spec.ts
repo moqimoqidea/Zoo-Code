@@ -188,6 +188,35 @@ describe("Context Management", () => {
 			// Last message should NOT be tagged (now at index 4)
 			expect(result.messages[4].truncationParent).toBeUndefined()
 		})
+
+		it("should truncate from the effective history when earlier messages were condensed", () => {
+			const condenseId = "prior-condense"
+			const messages: ApiMessage[] = [
+				{ role: "user", content: "Hidden user", condenseParent: condenseId },
+				{ role: "assistant", content: "Hidden assistant", condenseParent: condenseId },
+				{ role: "user", content: "Earlier summary", isSummary: true, condenseId },
+				{ role: "assistant", content: "Visible assistant 1" },
+				{ role: "user", content: "Visible user 1" },
+				{ role: "assistant", content: "Visible assistant 2" },
+				{ role: "user", content: "Visible user 2" },
+			]
+
+			const result = truncateConversation(messages, 0.5, taskId)
+
+			expect(result.messagesRemoved).toBe(2)
+
+			// Messages hidden behind the summary should stay untouched.
+			expect(result.messages[0].truncationParent).toBeUndefined()
+			expect(result.messages[1].truncationParent).toBeUndefined()
+
+			// The summary remains the anchor, and truncation starts after it.
+			expect(result.messages[2].isSummary).toBe(true)
+			expect(result.messages[3].truncationParent).toBe(result.truncationId)
+			expect(result.messages[4].truncationParent).toBe(result.truncationId)
+			expect(result.messages[5].isTruncationMarker).toBe(true)
+			expect(result.messages[6].truncationParent).toBeUndefined()
+			expect(result.messages[7].truncationParent).toBeUndefined()
+		})
 	})
 
 	/**
@@ -1722,19 +1751,21 @@ describe("Context Management", () => {
 			const totalTokens = 70001
 			const condenseId = "prior-condense"
 			const hiddenContent = "hidden historical content ".repeat(4000)
+			const visibleContent = "visible content that should actually be truncated ".repeat(200)
 
 			const messages: ApiMessage[] = [
 				{ role: "user", content: hiddenContent, condenseParent: condenseId },
 				{ role: "assistant", content: hiddenContent, condenseParent: condenseId },
 				{ role: "user", content: hiddenContent, condenseParent: condenseId },
 				{ role: "user", content: "Earlier summary", isSummary: true, condenseId },
-				{ role: "assistant", content: "Recent visible reply" },
-				{ role: "user", content: "Recent visible follow-up" },
-				{ role: "assistant", content: "Most recent visible reply" },
+				{ role: "assistant", content: visibleContent },
+				{ role: "user", content: visibleContent },
+				{ role: "assistant", content: visibleContent },
 				{ role: "user", content: "" },
 			]
 
 			const systemPrompt = "System prompt for truncation recount"
+			const effectiveTokensBefore = await countEffectiveHistoryTokens(messages, systemPrompt)
 
 			const result = await manageContext({
 				messages,
@@ -1755,6 +1786,7 @@ describe("Context Management", () => {
 
 			const expectedEffectiveTokens = await countEffectiveHistoryTokens(result.messages, systemPrompt)
 			expect(result.newContextTokensAfterTruncation).toBe(expectedEffectiveTokens)
+			expect(result.newContextTokensAfterTruncation).toBeLessThan(effectiveTokensBefore)
 			expect(result.newContextTokensAfterTruncation).toBeLessThan(result.prevContextTokens)
 		})
 	})

@@ -55,12 +55,42 @@ export type TruncationResult = {
 	messagesRemoved: number
 }
 
+function getEffectiveVisibleIndices(messages: ApiMessage[]): number[] {
+	const lastSummaryIndexReverse = [...messages].reverse().findIndex((message) => message.isSummary)
+	const firstEffectiveIndex = lastSummaryIndexReverse === -1 ? 0 : messages.length - lastSummaryIndexReverse - 1
+
+	const existingTruncationIds = new Set<string>()
+	for (const message of messages.slice(firstEffectiveIndex)) {
+		if (message.isTruncationMarker && message.truncationId) {
+			existingTruncationIds.add(message.truncationId)
+		}
+	}
+
+	const visibleIndices: number[] = []
+	for (let index = firstEffectiveIndex; index < messages.length; index++) {
+		const message = messages[index]
+
+		if (message.isTruncationMarker) {
+			continue
+		}
+
+		if (message.truncationParent && existingTruncationIds.has(message.truncationParent)) {
+			continue
+		}
+
+		visibleIndices.push(index)
+	}
+
+	return visibleIndices
+}
+
 /**
  * Truncates a conversation by tagging messages as hidden instead of removing them.
  *
- * The first message is always retained, and a specified fraction (rounded to an even number)
- * of messages from the beginning (excluding the first) is tagged with truncationParent.
- * A truncation marker is inserted to track where truncation occurred.
+ * The first message in the effective API history is always retained, and a specified fraction
+ * (rounded to an even number) of messages from the beginning of that effective history
+ * (excluding the first effective message) is tagged with truncationParent. A truncation marker
+ * is inserted to track where truncation occurred.
  *
  * This implements non-destructive sliding window truncation, allowing messages to be
  * restored if the user rewinds past the truncation point.
@@ -75,14 +105,10 @@ export function truncateConversation(messages: ApiMessage[], fracToRemove: numbe
 
 	const truncationId = crypto.randomUUID()
 
-	// Filter to only visible messages (those not already truncated)
-	// We need to track original indices to correctly tag messages in the full array
-	const visibleIndices: number[] = []
-	messages.forEach((msg, index) => {
-		if (!msg.truncationParent && !msg.isTruncationMarker) {
-			visibleIndices.push(index)
-		}
-	})
+	// Only truncate messages that are still part of the effective API history.
+	// Prior condensed history remains stored for rewind, but it should not consume
+	// the fallback truncation slice.
+	const visibleIndices = getEffectiveVisibleIndices(messages)
 
 	// Calculate how many visible messages to truncate (excluding first visible message)
 	const visibleCount = visibleIndices.length
