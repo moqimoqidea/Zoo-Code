@@ -905,8 +905,8 @@
 		"providerNotAllowed": "Sağlayıcı '{{provider}}' kuruluşunuz tarafından izin verilmiyor",
 		"modelNotAllowed": "Model '{{model}}' sağlayıcı '{{provider}}' için kuruluşunuz tarafından izin verilmiyor",
 		"profileInvalid": "Bu profil, kuruluşunuz tarafından izin verilmeyen bir sağlayıcı veya model içeriyor",
-		"qwenCodeOauthPath": "Geçerli bir OAuth kimlik bilgileri yolu sağlamalısın",
-		"zooGatewaySignIn": "Zoo Gateway'i kullanmak için Zoo Code'a giriş yapmalısın. Kimlik doğrulamak için 'Giriş Yap'a tıkla."
+		"qwenCodeOauthPath": "Geçerli bir OAuth kimlik bilgileri yolu sağlamalısınız",
+		"zooGatewaySignIn": "Zoo Gateway'i kullanmak için Zoo Code'a giriş yapmalısınız. Kimlik doğrulamak için 'Giriş Yap' düğmesine tıklayın."
 	},
 	"placeholders": {
 		"apiKey": "API anahtarını girin...",

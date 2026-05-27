@@ -54,8 +54,17 @@ export const handleUri = async (uri: vscode.Uri) => {
 					// The profile settings write (handleZooCodeCallback) must run on any active
 					// instance — not just the visible one — so the zoo-gateway zooSessionToken
 					// is persisted even when the sidebar/panel is hidden at callback time.
+					//
+					// Run sequentially (NOT Promise.all): each ClineProvider's
+					// handleZooCodeCallback does a read-modify-write on the same backing
+					// provider settings store (listConfig → getProfile → saveConfig /
+					// upsertProviderProfile). Fanning out concurrently across N instances
+					// can interleave reads/writes and clobber updates. Serialization here
+					// is cheap (at most a handful of instances) and avoids the race.
 					const allInstances = ClineProvider.getAllInstances()
-					await Promise.all(allInstances.map((instance) => instance.handleZooCodeCallback(token)))
+					for (const instance of allInstances) {
+						await instance.handleZooCodeCallback(token)
+					}
 				}
 			}
 			break

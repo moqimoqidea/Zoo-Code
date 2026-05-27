@@ -2476,27 +2476,23 @@ export const webviewMessageHandler = async (
 					for (const entry of allProfiles) {
 						if (entry.apiProvider === "zoo-gateway") {
 							const profile = await provider.providerSettingsManager.getProfile({ name: entry.name })
-							if (profile.zooSessionToken) {
-								// Clear the token from the profile
-								const { zooSessionToken: _removed, ...cleanedProfile } = profile
+							const { zooSessionToken: _removed, ...cleanedProfile } = profile
 
-								// If this is the currently active profile, push to in-memory handler
-								// so the current Task's API handler doesn't retain the stale token.
-								const isThisProfileActive = isZooGatewayActive && currentApiConfigName === entry.name
+							// If this is the currently active profile, ALWAYS push to the in-memory
+							// handler — even when the persisted profile has already been cleared —
+							// because currentSettings (and therefore the live API handler) may still
+							// carry a stale token from before sign-out. Persisted-only profiles get
+							// rewritten only when they previously had a token to avoid no-op disk writes.
+							const isThisProfileActive = isZooGatewayActive && currentApiConfigName === entry.name
 
-								if (isThisProfileActive) {
-									// Push cleared profile to in-memory handler
-									await provider.upsertProviderProfile(entry.name, cleanedProfile, true)
-									provider.log(
-										`[zooCodeSignOut] Cleared zooSessionToken from "${entry.name}" profile and updated in-memory handler`,
-									)
-								} else {
-									// Just persist to disk; this profile is not currently active
-									await provider.providerSettingsManager.saveConfig(entry.name, cleanedProfile)
-									provider.log(
-										`[zooCodeSignOut] Cleared zooSessionToken from "${entry.name}" profile`,
-									)
-								}
+							if (isThisProfileActive) {
+								await provider.upsertProviderProfile(entry.name, cleanedProfile, true)
+								provider.log(
+									`[zooCodeSignOut] Cleared zooSessionToken from "${entry.name}" profile and updated in-memory handler`,
+								)
+							} else if (profile.zooSessionToken) {
+								await provider.providerSettingsManager.saveConfig(entry.name, cleanedProfile)
+								provider.log(`[zooCodeSignOut] Cleared zooSessionToken from "${entry.name}" profile`)
 							}
 						}
 					}

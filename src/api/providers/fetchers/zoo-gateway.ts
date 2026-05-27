@@ -50,6 +50,9 @@ const zooGatewayModelsResponseSchema = z.object({
 
 type ZooGatewayModelsResponse = z.infer<typeof zooGatewayModelsResponseSchema>
 
+// Bound model discovery so a network stall can't hang provider initialization paths.
+const MODEL_DISCOVERY_TIMEOUT_MS = 15_000
+
 /**
  * getZooGatewayModels
  *
@@ -69,6 +72,7 @@ export async function getZooGatewayModels(options?: ApiHandlerOptions): Promise<
 	try {
 		const response = await axios.get<ZooGatewayModelsResponse>(`${baseURL}/models`, {
 			headers,
+			timeout: MODEL_DISCOVERY_TIMEOUT_MS,
 		})
 		const result = zooGatewayModelsResponseSchema.safeParse(response.data)
 		const data = result.success ? result.data.data : response.data.data
@@ -90,8 +94,16 @@ export async function getZooGatewayModels(options?: ApiHandlerOptions): Promise<
 			models[id] = parseZooGatewayModel({ id, model: model as VercelAiGatewayModel })
 		}
 	} catch (error) {
+		// Log only safe fields; never serialize the full error object because it
+		// includes request config/headers which carry the bearer session token.
+		const err = error as {
+			message?: string
+			name?: string
+			code?: string
+			response?: { status?: number; statusText?: string }
+		}
 		console.error(
-			`Error fetching Zoo Gateway models: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
+			`Error fetching Zoo Gateway models: name=${err.name ?? "Error"} code=${err.code ?? "unknown"} status=${err.response?.status ?? "unknown"} ${err.response?.statusText ?? ""} message=${err.message ?? "unknown error"}`,
 		)
 	}
 

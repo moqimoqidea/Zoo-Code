@@ -44,10 +44,14 @@ go—and, importantly, where they don't.
   Zoo Code, Zoo Code will send LLM usage telemetry to the Zoo Code backend
   (zoocode.dev). This includes task ID, AI provider name, model name, token
   counts (input/output/cache), and estimated cost. This data is linked to your
-  authenticated Zoo Code account. Free plan users have their telemetry retained
-  for 7 days; Pro and higher plan users have unlimited retention. You can stop
-  this collection at any time by signing out via the Zoo Code badge in the chat
-  area.
+  authenticated Zoo Code account and is retained for up to 90 days as
+  metadata-only API request logs, as described in the
+  [zoocode.dev Privacy Policy](https://www.zoocode.dev/legal/privacy). Free
+  plan users can view their telemetry in the dashboard for the most recent 7
+  days; Pro and higher plan users can view the full 90-day window. You can
+  stop this collection at any time by signing out via the Zoo Code badge in
+  the chat area, and you may request deletion of your data at any time per
+  the privacy policy.
 - **Marketplace Requests**: When you browse or search the Marketplace for Model
   Configuration Profiles (MCPs) or Custom Modes, Zoo Code makes a secure API
   call to Zoo Code's backend servers to retrieve listing information. These

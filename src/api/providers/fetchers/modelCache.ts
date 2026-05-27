@@ -171,6 +171,11 @@ export const getModels = async (options: GetModelsOptions): Promise<ModelRecord>
 export const refreshModels = async (options: GetModelsOptions): Promise<ModelRecord> => {
 	const { provider } = options
 
+	// Zoo Gateway models are user-specific (auth-scoped). Mirror the bypass in
+	// getModels() so we never persist one user's model list and serve it to a
+	// different authenticated user from cache.
+	const shouldSkipCache = provider === "zoo-gateway"
+
 	// Check if there's already an in-flight refresh for this provider
 	// This prevents race conditions where multiple concurrent refreshes might
 	// overwrite each other's results
@@ -187,7 +192,7 @@ export const refreshModels = async (options: GetModelsOptions): Promise<ModelRec
 			const modelCount = Object.keys(models).length
 
 			// Get existing cached data for comparison
-			const existingCache = getModelsFromCache(provider)
+			const existingCache = shouldSkipCache ? undefined : getModelsFromCache(provider)
 			const existingCount = existingCache ? Object.keys(existingCache).length : 0
 
 			if (modelCount === 0) {
@@ -204,18 +209,23 @@ export const refreshModels = async (options: GetModelsOptions): Promise<ModelRec
 				}
 			}
 
-			// Update memory cache first
-			memoryCache.set(provider, models)
+			if (!shouldSkipCache) {
+				memoryCache.set(provider, models)
 
-			// Atomically write to disk (safeWriteJson handles atomic writes)
-			await writeModels(provider, models).catch((err) =>
-				console.error(`[refreshModels] Error writing ${provider} models to disk:`, err),
-			)
+				await writeModels(provider, models).catch((err) =>
+					console.error(`[refreshModels] Error writing ${provider} models to disk:`, err),
+				)
+			}
 
 			return models
 		} catch (error) {
-			// Log the error for debugging, then return existing cache if available (graceful degradation)
+			// Log the error for debugging, then return existing cache if available (graceful degradation).
+			// For auth-scoped providers (zoo-gateway) we MUST NOT return cached models from a prior
+			// session, since they could belong to a different user — return empty instead.
 			console.error(`[refreshModels] Failed to refresh ${provider} models:`, error)
+			if (shouldSkipCache) {
+				return {}
+			}
 			return getModelsFromCache(provider) || {}
 		} finally {
 			// Always clean up the in-flight tracking

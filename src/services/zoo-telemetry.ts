@@ -18,7 +18,9 @@ export type LlmTelemetryPayload = {
  * Send LLM telemetry to the Zoo Code observability backend.
  * This is a fire-and-forget operation that silently fails on error.
  * Sends telemetry for all authenticated users — free and paid alike.
- * Retention limits (7 days for free, unlimited for Pro) are enforced server-side.
+ * Server-side retention follows the zoocode.dev privacy policy (metadata-only
+ * API request logs are kept up to 90 days). Dashboard visibility is plan-gated
+ * (7 days for Free; full window for Pro and higher).
  */
 export async function sendLlmTelemetry(payload: LlmTelemetryPayload): Promise<void> {
 	const token = getCachedZooCodeToken()
