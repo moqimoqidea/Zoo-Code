@@ -338,9 +338,9 @@
 		},
 		"release": {
 			"heading": "새로운 기능:",
-			"highlight1": "Zoo Gateway로 연결하세요 — 멀티 프로필 인증을 지원하는 관리형 게이트웨이를 통해 요청을 라우팅할 수 있어요.",
-			"highlight2": "Gemini 3.5 Flash를 사용하세요 — 빠르고 강력한 Google 모델이 이제 provider 설정에서 바로 사용 가능해요.",
-			"highlight3": "Semble로 코드베이스를 로컬에서 인덱싱하세요 — 외부 API 키나 업로드 없이 온더플라이 임베딩을 생성하고, 코드는 내 머신에 그대로 남아요."
+			"highlight1": "새 AI 모델 — 모든 Anthropic 공급자에서 Claude Fable 5와 OpenAI GPT-5.5를 공급자 설정에서 이제 사용할 수 있습니다.",
+			"highlight2": "모드별 MCP allowlist — 모드 설정의 새 allowlist를 사용하여 각 모드에서 활성화할 MCP 서버를 제한하세요.",
+			"highlight3": "워크스페이스 rootResolution 설정 — 멀티 루트 워크스페이스에서 Zoo Code가 파일 경로를 해석하는 방식을 제어하는 새 설정입니다."
 		},
 		"cloudAgents": {
 			"heading": "클라우드의 새로운 기능:",

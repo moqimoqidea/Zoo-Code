@@ -367,9 +367,9 @@
 		},
 		"release": {
 			"heading": "Yang Baru:",
-			"highlight1": "Hubungkan melalui Zoo Gateway — arahkan permintaanmu melalui gateway terkelola dengan dukungan autentikasi multi-profil.",
-			"highlight2": "Gunakan Gemini 3.5 Flash — model Google yang cepat dan andal, kini tersedia langsung dari pengaturan provider.",
-			"highlight3": "Indeks kodebasemu secara lokal dengan Semble — embedding on-the-fly tanpa API key eksternal atau unggahan, kodemu tetap di mesinmu."
+			"highlight1": "Model AI baru — Claude Fable 5 di semua penyedia Anthropic dan OpenAI GPT-5.5 kini tersedia di pengaturan penyedia kamu.",
+			"highlight2": "Allowlist MCP per mode — batasi server MCP mana yang aktif untuk setiap mode menggunakan allowlist baru di konfigurasi mode kamu.",
+			"highlight3": "Pengaturan rootResolution workspace — pengaturan baru yang mengontrol cara Zoo Code menyelesaikan path file di workspace multi-root."
 		},
 		"cloudAgents": {
 			"heading": "Baru di Cloud:",

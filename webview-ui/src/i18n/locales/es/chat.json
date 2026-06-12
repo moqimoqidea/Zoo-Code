@@ -338,9 +338,9 @@
 		},
 		"release": {
 			"heading": "Novedades:",
-			"highlight1": "Conéctate a través de Zoo Gateway — enruta tus solicitudes a través de un gateway gestionado con soporte de autenticación multi-perfil.",
-			"highlight2": "Usa Gemini 3.5 Flash — un modelo de Google rápido y capaz, ahora disponible directamente desde la configuración del proveedor.",
-			"highlight3": "Indexa tu código localmente con Semble — embeddings en tiempo real sin necesidad de clave de API externa ni subida de archivos, manteniendo tu código en tu máquina."
+			"highlight1": "Nuevos modelos de IA — Claude Fable 5 en todos los proveedores de Anthropic y OpenAI GPT-5.5 ya están disponibles en la configuración del proveedor.",
+			"highlight2": "Listas de permitidos de MCP por modo — restringe qué servidores MCP están activos por modo con una nueva lista de permitidos en la configuración del modo.",
+			"highlight3": "Ajuste rootResolution para el espacio de trabajo — un nuevo ajuste que controla cómo Zoo Code resuelve las rutas de archivos en espacios de trabajo multi-raíz."
 		},
 		"cloudAgents": {
 			"heading": "Novedades en la Nube:",

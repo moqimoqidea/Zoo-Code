@@ -338,9 +338,9 @@
 		},
 		"release": {
 			"heading": "नया क्या है:",
-			"highlight1": "Zoo Gateway से कनेक्ट करें — अपने requests को multi-profile auth support के साथ एक managed gateway के ज़रिए route करें।",
-			"highlight2": "Gemini 3.5 Flash उपयोग करें — एक तेज़ और सक्षम Google model, अब सीधे provider settings से उपलब्ध।",
-			"highlight3": "Semble के साथ अपना codebase locally index करें — बिना किसी external API key या upload के on-the-fly embeddings, आपका code आपकी machine पर ही रहता है।"
+			"highlight1": "नए AI मॉडल — Claude Fable 5 सभी Anthropic providers पर और OpenAI GPT-5.5 अब आपके provider settings में उपलब्ध हैं।",
+			"highlight2": "प्रति-मोड MCP allowlists — mode configuration में नई allowlist का उपयोग करके प्रत्येक mode के लिए सक्रिय MCP servers को सीमित करें।",
+			"highlight3": "Workspace rootResolution सेटिंग — एक नई सेटिंग जो नियंत्रित करती है कि Zoo Code multi-root workspaces में फ़ाइल पथों को कैसे resolve करता है।"
 		},
 		"cloudAgents": {
 			"heading": "क्लाउड में नया:",

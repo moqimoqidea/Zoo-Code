@@ -338,9 +338,9 @@
 		},
 		"release": {
 			"heading": "新機能:",
-			"highlight1": "Zoo Gateway で接続 — マルチプロファイル認証に対応したマネージドゲートウェイを通じてリクエストをルーティングできます。",
-			"highlight2": "Gemini 3.5 Flash を使用 — 高速で優れた Google モデルが、プロバイダー設定から直接利用できるようになりました。",
-			"highlight3": "Semble でコードベースをローカルにインデックス化 — 外部 API キーやアップロード不要でオンザフライの埋め込みを生成し、コードはあなたのマシンに保持されます。"
+			"highlight1": "新しい AI モデル — すべての Anthropic プロバイダーで Claude Fable 5、OpenAI GPT-5.5 がプロバイダー設定で利用可能になりました。",
+			"highlight2": "モード別 MCP allowlist — モード設定の新しい allowlist を使用して、各モードで有効にする MCP サーバーを制限できます。",
+			"highlight3": "ワークスペース rootResolution 設定 — マルチルートワークスペースでのファイルパス解決方法を制御する新しい設定です。"
 		},
 		"cloudAgents": {
 			"heading": "クラウドの新機能:",

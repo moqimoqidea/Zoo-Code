@@ -360,9 +360,9 @@
 		},
 		"release": {
 			"heading": "新增功能：",
-			"highlight1": "透過 Zoo Gateway 連線 — 將請求路由至支援多設定檔驗證的託管閘道。",
-			"highlight2": "使用 Gemini 3.5 Flash — 一款快速且強大的 Google 模型，現可直接在供應商設定中使用。",
-			"highlight3": "使用 Semble 在本機對程式碼庫建立索引 — 無需外部 API 金鑰或上傳即可即時產生嵌入，程式碼始終保留在你的機器上。"
+			"highlight1": "新 AI 模型 — Claude Fable 5（適用於所有 Anthropic 提供商）和 OpenAI GPT-5.5 現已在提供商設定中可用。",
+			"highlight2": "按模式的 MCP 允許清單 — 在模式設定中使用新的允許清單，限制每個模式下哪些 MCP 伺服器處於活動狀態。",
+			"highlight3": "工作區 rootResolution 設定 — 一項新設定，用於控制 Zoo Code 在多根工作區中解析檔案路徑的方式。"
 		},
 		"cloudAgents": {
 			"heading": "雲端的新功能：",
