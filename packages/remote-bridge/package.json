@@ -1,5 +1,5 @@
 {
-	"name": "@roo-code/remote-bridge",
+	"name": "@zoo-code/remote-bridge",
 	"description": "Forked Node bridge process that connects Zoo Code's IPC API surface to remote clients (WebRTC in later phases).",
 	"version": "0.0.1",
 	"type": "module",

@@ -30,7 +30,7 @@ The socket path is the same one the extension already reads: the `ROO_CODE_IPC_S
 ### As a library
 
 ```typescript
-import { Bridge } from "@roo-code/remote-bridge"
+import { Bridge } from "@zoo-code/remote-bridge"
 
 const bridge = new Bridge("/tmp/zoo-code.sock")
 await bridge.connect()
@@ -55,7 +55,7 @@ bridge.disconnect()
 ROO_CODE_IPC_SOCKET_PATH=/tmp/zoo-code.sock code .
 
 # 2. From the repo, run the bridge against that socket.
-pnpm --filter @roo-code/remote-bridge start -- --socket /tmp/zoo-code.sock --command get-modes
+pnpm --filter @zoo-code/remote-bridge start -- --socket /tmp/zoo-code.sock --command get-modes
 ```
 
 The response event is pretty-printed to stdout; diagnostic logs go to stderr.

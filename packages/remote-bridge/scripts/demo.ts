@@ -7,7 +7,7 @@
  * the response. This proves the forked node process can talk to the API
  * surface over a real Unix socket.
  *
- * Run with:  pnpm --filter @roo-code/remote-bridge exec tsx scripts/demo.ts
+ * Run with:  pnpm --filter @zoo-code/remote-bridge exec tsx scripts/demo.ts
  */
 import os from "node:os"
 import path from "node:path"

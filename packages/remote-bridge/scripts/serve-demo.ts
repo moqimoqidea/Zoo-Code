@@ -8,7 +8,7 @@
  * streams to stdout. This proves the extension's fork path works end-to-end.
  *
  * Run from repo root:
- *   pnpm --filter @roo-code/remote-bridge exec tsx scripts/serve-demo.ts
+ *   pnpm --filter @zoo-code/remote-bridge exec tsx scripts/serve-demo.ts
  */
 import os from "node:os"
 import path from "node:path"
