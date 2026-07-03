@@ -1074,10 +1074,12 @@ export class ClineProvider
 
 			if (profile?.name) {
 				try {
-					await this.activateProviderProfile(
-						{ name: profile.name },
-						{ persistModeConfig: false, persistTaskHistory: false },
-					)
+					if (profile.apiProvider) {
+						await this.activateProviderProfile(
+							{ name: profile.name },
+							{ persistModeConfig: false, persistTaskHistory: false },
+						)
+					}
 				} catch (error) {
 					// Log the error but continue with task restoration.
 					this.log(

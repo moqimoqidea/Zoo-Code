@@ -3,7 +3,7 @@ import * as assert from "assert"
 import { RooCodeEventName, type ClineMessage } from "@roo-code/types"
 
 import { setDefaultSuiteTimeout } from "./test-utils"
-import { waitFor, waitUntilCompleted } from "./utils"
+import { sleep, waitFor, waitUntilCompleted } from "./utils"
 import {
 	SUBTASK_CHILD_FOLLOWUP_ANSWER,
 	SUBTASK_FAST_PARENT_PROMPT,
@@ -72,6 +72,7 @@ suite("Roo Code Subtasks", function () {
 			while (api.getCurrentTaskStack().length > 0) {
 				await api.clearCurrentTask()
 			}
+			await sleep(1_500)
 		}
 	})
 
@@ -578,7 +579,7 @@ suite("Roo Code Subtasks", function () {
 				"Parent must not have resumed while child is interrupted",
 			)
 
-			// Resume the child and answer the followup — child should complete and reopen parent
+			// Resume the child and answer the followup — child should complete and reopen parent.
 			const completedParentTaskId = await waitUntilCompleted({
 				api,
 				start: async () => {
@@ -593,13 +594,11 @@ suite("Roo Code Subtasks", function () {
 				"Parent task should be the one that completes after interrupted child reports back",
 			)
 
-			const parentCompletionText = says[parentTaskId]
-				?.filter(({ say }) => say === "completion_result")
-				.map(({ text }) => text?.trim())
-				.find((t): t is string => !!t)
-
 			assert.strictEqual(
-				parentCompletionText,
+				says[parentTaskId]
+					?.filter(({ say }) => say === "completion_result")
+					.map(({ text }) => text?.trim())
+					.find((text) => text === SUBTASK_INTERRUPT_PARENT_RESULT),
 				SUBTASK_INTERRUPT_PARENT_RESULT,
 				"Parent should complete with expected result after interrupted child reports back",
 			)

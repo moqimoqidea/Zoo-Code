@@ -14,7 +14,7 @@ export type HistoryItemStatus = NonNullable<HistoryItem["status"]>
 const VALID_TRANSITIONS: Record<HistoryItemStatus, HistoryItemStatus[]> = {
 	active: ["delegated", "completed", "interrupted"],
 	delegated: ["active"],
-	interrupted: ["active", "completed"],
+	interrupted: ["completed"],
 	completed: [],
 }
 
@@ -356,7 +356,7 @@ export class TaskHistoryStore {
 	 * - Parent `delegated`, child not found → parent → `active` (orphaned delegation)
 	 * - Parent `delegated`, child `completed` → parent → `active` (interrupted handoff)
 	 *
-	 * A parent awaiting an `active` child is left as-is — the child is resumable.
+	 * A parent awaiting an `active`, `interrupted`, or `delegated` child is left as-is — the child is resumable.
 	 */
 	private async reconcileDelegationState(): Promise<void> {
 		return this.withLock(async () => {
@@ -418,7 +418,7 @@ export class TaskHistoryStore {
 						)
 						repairsInThisPass++
 					}
-					// child.status === "active" or "delegated" → leave as-is this pass
+					// child.status === "active", "interrupted", or "delegated" → leave as-is this pass
 				}
 			} while (repairsInThisPass > 0)
 		})

@@ -1127,7 +1127,9 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			// - Final state is emitted when updates stop (trailing: true)
 			this.debouncedEmitTokenUsage(tokenUsage, this.toolUsage)
 
-			await this.providerRef.deref()?.updateTaskHistory(historyItem)
+			const provider = this.providerRef.deref()
+			const existingStatus = provider?.taskHistoryStore.get(this.taskId)?.status
+			await provider?.updateTaskHistory(existingStatus ? { ...historyItem, status: existingStatus } : historyItem)
 			return true
 		} catch (error) {
 			console.error("Failed to save Roo messages:", error)
