@@ -533,6 +533,16 @@ export class ClineProvider
 						const { historyItem: parentHistory } = await this.getTaskWithId(parentTaskId)
 
 						if (parentHistory?.status === "delegated" && parentHistory?.awaitingChildId === childTaskId) {
+							// If the child is "interrupted", cancelTask already persisted that
+							// status and intentionally left the parent delegated so the child
+							// can resume and report back. Do not auto-repair in that case.
+							if (this.taskHistoryStore.get(childTaskId)?.status === "interrupted") {
+								this.log(
+									`[ClineProvider#removeClineFromStack] Skipping parent repair: child ${childTaskId} is interrupted`,
+								)
+								return
+							}
+
 							assertValidTransition(parentHistory.status, "active")
 							await this.updateTaskHistory({
 								...parentHistory,
@@ -3159,8 +3169,11 @@ export class ClineProvider
 		// This ensures the stream fails quickly rather than waiting for network timeout
 		task.cancelCurrentRequest()
 
-		// Begin abort (non-blocking)
-		task.abortTask()
+		// Kick off abort (sets abort flag synchronously; stream exit and final saveClineMessages
+		// happen asynchronously). We capture the promise so we can await its completion below —
+		// this ensures task.initialStatus ("active") cannot overwrite "interrupted" after we
+		// persist it (issue #560).
+		const abortPromise = task.abortTask()
 
 		// Immediately mark the original instance as abandoned to prevent any residual activity
 		task.abandoned = true
@@ -3180,6 +3193,10 @@ export class ClineProvider
 		).catch(() => {
 			console.error("Failed to abort task")
 		})
+
+		// Wait for abortTask to fully settle (including its final saveClineMessages write)
+		// before we persist "interrupted", so our write is always the last one.
+		await abortPromise.catch(() => {})
 
 		// Defensive safeguard: if current instance already changed, skip rehydrate
 		const current = this.getCurrentTask()
@@ -3211,27 +3228,21 @@ export class ClineProvider
 					const { historyItem: parentHistory } = await this.getTaskWithId(task.parentTaskId!)
 
 					if (parentHistory?.status === "delegated" && parentHistory?.awaitingChildId === task.taskId) {
-						assertValidTransition(parentHistory.status, "active")
-						await this.updateTaskHistory({
-							...parentHistory,
-							status: "active",
-							awaitingChildId: undefined,
-							delegatedToId: undefined,
-						})
-
-						this.log(
-							`[cancelTask] Detached delegated parent ${task.parentTaskId}: delegated → active (child ${task.taskId} cancelled)`,
-						)
-						parentTask = undefined
-						rootTask = undefined
-						// Clear any stale fail-closed entry from a prior failed cancel attempt.
+						// Mark the child interrupted and leave parent delegated with awaitingChildId
+						// intact — the user can resume this child later and it will report back.
+						historyItem = { ...historyItem!, status: "interrupted" }
+						await this.updateTaskHistory(historyItem)
+						// Clear any stale fail-closed entry from a prior failed cancel attempt so
+						// reopenParentFromDelegation is not incorrectly blocked on resume.
 						this.cancelledDelegationChildIds.delete(task.taskId)
+						this.log(
+							`[cancelTask] Marked child ${task.taskId} interrupted; parent ${task.parentTaskId} stays delegated`,
+						)
 					}
 				})
 			} catch (error) {
-				// Fail closed: if we cannot prove the parent was detached, make the
-				// rehydrated child standalone so later completions cannot reopen a
-				// stale delegated parent, even after a provider reload.
+				// Fail closed: if we cannot persist the interrupted status, sever the link
+				// so later completions don't reopen a stale delegated parent.
 				parentTask = undefined
 				rootTask = undefined
 				this.cancelledDelegationChildIds.add(task.taskId)
@@ -3244,14 +3255,14 @@ export class ClineProvider
 					await this.updateTaskHistory(historyItem)
 				} catch (historyError) {
 					this.log(
-						`[cancelTask] Failed to persist standalone child state for ${task.taskId}: ${
+						`[cancelTask] Failed to persist interrupted child state for ${task.taskId}: ${
 							historyError instanceof Error ? historyError.message : String(historyError)
 						}`,
 					)
 					throw historyError
 				}
 				this.log(
-					`[cancelTask] Failed to detach delegated parent for ${task.taskId}: ${
+					`[cancelTask] Failed to mark child interrupted for ${task.taskId}: ${
 						error instanceof Error ? error.message : String(error)
 					}`,
 				)

@@ -12,8 +12,9 @@ import { getStorageBasePath } from "../../utils/storage"
 export type HistoryItemStatus = NonNullable<HistoryItem["status"]>
 
 const VALID_TRANSITIONS: Record<HistoryItemStatus, HistoryItemStatus[]> = {
-	active: ["delegated", "completed"],
+	active: ["delegated", "completed", "interrupted"],
 	delegated: ["active"],
+	interrupted: ["active", "completed"],
 	completed: [],
 }
 

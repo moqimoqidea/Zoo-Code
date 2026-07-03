@@ -13,6 +13,7 @@ export function makeProviderStub<T extends object>(stub: T): T {
 	s.delegationTransitionLocks ??= new Map()
 	s.cancelledDelegationChildIds ??= new Set()
 	s.log ??= vi.fn()
+	s.taskHistoryStore ??= { get: () => undefined }
 	s.runDelegationTransition = proto.runDelegationTransition.bind(s)
 	return s
 }
