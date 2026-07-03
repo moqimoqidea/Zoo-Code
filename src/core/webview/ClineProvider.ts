@@ -167,6 +167,14 @@ export class ClineProvider
 	private clineStack: Task[] = []
 	private delegationTransitionLocks?: Map<string, Promise<void>>
 	private cancelledDelegationChildIds = new Set<string>()
+	// Marks a child whose cancellation is currently in flight, from the moment cancelTask()
+	// is invoked until its "interrupted" status write lands (or the cancel path bails out).
+	// removeClineFromStack()'s delegation repair must not run against a stale "active" read
+	// while this is set — otherwise a concurrent navigation (e.g. showTaskWithId(parentTaskId)
+	// from the user clicking "back to parent" right after hitting Stop) can win the race
+	// against cancelTask()'s own runDelegationTransition call and repair the parent to
+	// "active" before "interrupted" is ever persisted, permanently severing the delegation link.
+	private cancellingDelegationChildIds = new Set<string>()
 	private codeIndexStatusSubscription?: vscode.Disposable
 	private codeIndexManager?: CodeIndexManager
 	private _workspaceTracker?: WorkspaceTracker // workSpaceTracker read-only for access outside this class
@@ -539,6 +547,19 @@ export class ClineProvider
 							if (this.taskHistoryStore.get(childTaskId)?.status === "interrupted") {
 								this.log(
 									`[ClineProvider#removeClineFromStack] Skipping parent repair: child ${childTaskId} is interrupted`,
+								)
+								return
+							}
+
+							// A cancellation for this child may be in flight (cancelTask() has
+							// marked it synchronously but its "interrupted" write hasn't landed
+							// yet, since both paths serialize on the same per-parent transition
+							// lock and this call won the race). Repairing here would clear
+							// awaitingChildId based on a stale "active" read and permanently
+							// sever the delegation link. Defer to cancelTask()'s own write instead.
+							if (this.cancellingDelegationChildIds.has(childTaskId)) {
+								this.log(
+									`[ClineProvider#removeClineFromStack] Skipping parent repair: cancellation for child ${childTaskId} is in flight`,
 								)
 								return
 							}
@@ -3142,6 +3163,23 @@ export class ClineProvider
 
 		console.log(`[cancelTask] cancelling task ${task.taskId}.${task.instanceId}`)
 
+		// Mark this child as "cancellation in flight" synchronously, before any await, so a
+		// concurrent removeClineFromStack() (e.g. from the user navigating back to the parent
+		// right after clicking Stop) cannot win the race against this function's own
+		// runDelegationTransition call below and repair the parent from a stale "active" read
+		// before "interrupted" is persisted (see cancellingDelegationChildIds doc comment).
+		if (task.parentTaskId) {
+			this.cancellingDelegationChildIds.add(task.taskId)
+		}
+
+		try {
+			await this.cancelTaskInternal(task)
+		} finally {
+			this.cancellingDelegationChildIds.delete(task.taskId)
+		}
+	}
+
+	private async cancelTaskInternal(task: Task): Promise<void> {
 		let historyItem: HistoryItem | undefined
 		try {
 			const history = await this.getTaskWithId(task.taskId)
